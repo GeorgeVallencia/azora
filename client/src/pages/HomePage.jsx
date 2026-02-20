@@ -23,14 +23,20 @@ function HomePage() {
       const response = await axios.get('http://localhost:4000/goals', { withCredentials: true });
       const allGoals = response.data;
 
-      // Filter for today's goals (created today or with deadline today)
+      // Show all incomplete goals + goals completed today
       const today = new Date().toDateString();
       const todayGoals = allGoals.filter(goal => {
-        const goalDate = new Date(goal.createdAt).toDateString();
-        const deadlineDate = goal.deadline ? new Date(goal.deadline).toDateString() : null;
-        return goalDate === today || deadlineDate === today;
+        if (goal.isCompleted) {
+          // Only show completed goals if they were completed today
+          const completedDate = goal.updatedAt ? new Date(goal.updatedAt).toDateString() : null;
+          return completedDate === today;
+        } else {
+          // Show all incomplete goals
+          return true;
+        }
       });
 
+      console.log('Today goals fetched:', todayGoals);
       setGoals(todayGoals);
     } catch (error) {
       console.error('Failed to fetch goals:', error);
